@@ -1,0 +1,9 @@
+{
+    "uuid": "win11-workspace-switcher@cinnamon",
+    "name": "Win11-Like Workspace Switcher",
+    "description": "Windows 11 Task View & Virtual Desktops switcher for Cinnamon: hover flyout, full Task View overlay, live window previews, inline rename, reorder and window drag-and-drop",
+    "website": "https://github.com/Grekto-dev/win11-workspace-switcher",
+    "icon": "cs-workspaces",
+    "max-instances": -1,
+    "version": "0.1.0"
+}

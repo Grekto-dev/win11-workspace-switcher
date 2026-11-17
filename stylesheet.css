@@ -1,0 +1,465 @@
+/* =========================================================================
+ * Win11-Like Workspace Switcher
+ * Geometry & palette measured from Windows 11 24H2 (1440x900 @ 100% scale).
+ * Note: Cinnamon's CSS background-blur crashes the shell on this machine, so
+ * Task View uses a pre-blurred cached wallpaper Clutter.Image instead.
+ * ========================================================================= */
+
+.win11-ws-applet {
+    padding: 0;
+    margin: 0;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.win11-ws-btn-wrap {
+    padding: 0;
+    margin: 0;
+}
+
+/* ---- Hover Flyout -------------------------------------------------------- */
+
+.win11-ws-flyout {
+    border-radius: 8px;
+    box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.48);
+}
+
+.win11-ws-flyout.win11-ws-dark {
+    background-color: rgba(36, 40, 48, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.win11-ws-flyout.win11-ws-light {
+    background-color: rgba(242, 245, 250, 0.96);
+    border: 1px solid rgba(0, 0, 0, 0.10);
+}
+
+/* ---- Scrollable Strip & Desktop Cards (240x164, thumb 220x132) ----------- */
+
+.win11-ws-scroll {
+    background-color: transparent;
+}
+
+.win11-ws-scroll StScrollBar {
+    padding: 2px 0 0 0;
+}
+
+.win11-ws-scroll StScrollBar StBin#trough {
+    background-color: rgba(128, 128, 140, 0.16);
+    border-radius: 3px;
+    min-height: 4px;
+}
+
+.win11-ws-scroll StScrollBar StButton#hhandle {
+    background-color: rgba(180, 185, 195, 0.50);
+    border-radius: 3px;
+    min-height: 4px;
+}
+
+.win11-ws-scroll StScrollBar StButton#hhandle:hover {
+    background-color: rgba(210, 215, 225, 0.75);
+}
+
+.win11-ws-strip-row {
+    padding: 0;
+}
+
+.win11-ws-card {
+    padding: 4px 10px 4px 10px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background-color: transparent;
+    spacing: 2px;
+}
+
+.win11-ws-dark .win11-ws-card:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.16);
+}
+
+.win11-ws-light .win11-ws-card:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.12);
+}
+
+.win11-ws-dark .win11-ws-card-active {
+    background-color: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+.win11-ws-light .win11-ws-card-active {
+    background-color: rgba(255, 255, 255, 0.55);
+    border-color: rgba(0, 0, 0, 0.10);
+}
+
+.win11-ws-dark .win11-ws-card-preview {
+    background-color: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.24);
+}
+
+.win11-ws-light .win11-ws-card-preview {
+    background-color: rgba(255, 255, 255, 0.72);
+    border-color: rgba(0, 0, 0, 0.18);
+}
+
+.win11-ws-dark .win11-ws-card-dragging {
+    background-color: rgba(54, 60, 72, 0.96);
+    border-color: rgba(76, 194, 255, 0.85);
+    box-shadow: 0 8px 20px 0 rgba(0, 0, 0, 0.52);
+}
+
+.win11-ws-light .win11-ws-card-dragging {
+    background-color: rgba(255, 255, 255, 0.96);
+    border-color: rgba(0, 120, 212, 0.85);
+    box-shadow: 0 8px 20px 0 rgba(0, 0, 0, 0.25);
+}
+
+.win11-ws-dark .win11-ws-card-drop {
+    background-color: rgba(76, 194, 255, 0.18);
+    border-color: rgba(76, 194, 255, 0.85);
+}
+
+.win11-ws-light .win11-ws-card-drop {
+    background-color: rgba(0, 120, 212, 0.14);
+    border-color: rgba(0, 120, 212, 0.85);
+}
+
+.win11-ws-card-header {
+    height: 20px;
+    spacing: 4px;
+}
+
+.win11-ws-card-title {
+    font-size: 12px;
+    font-weight: normal;
+}
+
+.win11-ws-dark .win11-ws-card-title {
+    color: rgba(255, 255, 255, 0.94);
+}
+
+.win11-ws-light .win11-ws-card-title {
+    color: rgba(20, 20, 24, 0.92);
+}
+
+.win11-ws-card-close {
+    border-radius: 4px;
+    background-color: transparent;
+    padding: 0;
+}
+
+.win11-ws-dark .win11-ws-card-close:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.win11-ws-light .win11-ws-card-close:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
+.win11-ws-card-close-glyph {
+    font-size: 11px;
+}
+
+.win11-ws-dark .win11-ws-card-close-glyph {
+    color: rgba(255, 255, 255, 0.90);
+}
+
+.win11-ws-light .win11-ws-card-close-glyph {
+    color: rgba(20, 20, 24, 0.85);
+}
+
+.win11-ws-thumb {
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.win11-ws-light .win11-ws-thumb {
+    border-color: rgba(0, 0, 0, 0.10);
+}
+
+.win11-ws-mini-win {
+    background-color: rgba(48, 52, 60, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 2px;
+}
+
+.win11-ws-light .win11-ws-mini-win {
+    background-color: rgba(248, 250, 252, 0.94);
+    border: 1px solid rgba(0, 0, 0, 0.18);
+}
+
+.win11-ws-pill-wrap {
+    height: 4px;
+}
+
+.win11-ws-pill {
+    border-radius: 2px;
+}
+
+/* ---- "+ New desktop" Card ------------------------------------------------ */
+
+.win11-ws-add-tile {
+    border-radius: 4px;
+}
+
+.win11-ws-dark .win11-ws-add-tile {
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.win11-ws-dark .win11-ws-add-card:hover .win11-ws-add-tile {
+    background-color: rgba(255, 255, 255, 0.14);
+}
+
+.win11-ws-light .win11-ws-add-tile {
+    background-color: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.win11-ws-light .win11-ws-add-card:hover .win11-ws-add-tile {
+    background-color: rgba(255, 255, 255, 0.92);
+}
+
+.win11-ws-add-plus {
+    font-size: 20px;
+    font-weight: 300;
+}
+
+.win11-ws-dark .win11-ws-add-plus {
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.win11-ws-light .win11-ws-add-plus {
+    color: rgba(20, 20, 24, 0.88);
+}
+
+/* ---- Inline Rename Entry ------------------------------------------------- */
+
+.win11-ws-rename-entry {
+    font-size: 12px;
+    padding: 0 4px;
+    height: 20px;
+    border-radius: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: none;
+}
+
+.win11-ws-dark .win11-ws-rename-entry {
+    background-color: rgba(24, 27, 32, 0.95);
+    color: #ffffff;
+    caret-color: #ffffff;
+}
+
+.win11-ws-light .win11-ws-rename-entry {
+    background-color: #ffffff;
+    color: #141418;
+    caret-color: #141418;
+}
+
+/* ---- Full Task View Overlay ---------------------------------------------- */
+
+.win11-ws-taskview {
+    background-color: transparent;
+}
+
+.win11-ws-dark .win11-ws-tv-scrim {
+    background-color: rgba(18, 24, 34, 0.45);
+}
+
+.win11-ws-light .win11-ws-tv-scrim {
+    background-color: rgba(235, 242, 250, 0.38);
+}
+
+.win11-ws-tv-dock {
+    padding: 6px 8px;
+    border-radius: 8px;
+    box-shadow: 0 8px 28px 0 rgba(0, 0, 0, 0.40);
+}
+
+.win11-ws-dark .win11-ws-tv-dock {
+    background-color: rgba(24, 30, 40, 0.86);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.win11-ws-light .win11-ws-tv-dock {
+    background-color: rgba(240, 244, 250, 0.86);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.win11-ws-tv-empty {
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.win11-ws-dark .win11-ws-tv-empty {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.win11-ws-light .win11-ws-tv-empty {
+    color: rgba(20, 20, 24, 0.65);
+}
+
+/* ---- Task View Window Cards ---------------------------------------------- */
+
+.win11-ws-wincard {
+    border-radius: 8px;
+    border: 2px solid transparent;
+    padding: 2px;
+    spacing: 0;
+    box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.28);
+}
+
+.win11-ws-lite .win11-ws-wincard,
+.win11-ws-lite .win11-ws-tv-dock,
+.win11-ws-lite.win11-ws-flyout,
+.win11-ws-lite .win11-ws-card-dragging {
+    box-shadow: none;
+}
+
+.win11-ws-dark .win11-ws-wincard {
+    background-color: rgba(34, 38, 46, 0.92);
+}
+
+.win11-ws-light .win11-ws-wincard {
+    background-color: rgba(244, 246, 250, 0.94);
+}
+
+.win11-ws-wincard-header {
+    padding: 0 6px 0 8px;
+    spacing: 8px;
+}
+
+.win11-ws-wincard-title {
+    font-size: 12.5px;
+    font-weight: 500;
+}
+
+.win11-ws-dark .win11-ws-wincard-title {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.win11-ws-light .win11-ws-wincard-title {
+    color: rgba(20, 20, 24, 0.92);
+}
+
+.win11-ws-wincard-preview {
+    border-radius: 0 0 6px 6px;
+}
+
+.win11-ws-wincard-fallback {
+    background-color: rgba(128, 128, 140, 0.14);
+}
+
+/* ---- Context Menu -------------------------------------------------------- */
+
+.win11-ws-menu {
+    padding: 4px;
+    spacing: 2px;
+    min-width: 240px;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.45);
+}
+
+.win11-ws-menu.win11-ws-dark {
+    background-color: rgb(43, 46, 53);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.win11-ws-menu.win11-ws-light {
+    background-color: rgb(246, 247, 250);
+    border: 1px solid rgba(0, 0, 0, 0.10);
+}
+
+.win11-ws-menu-item {
+    height: 30px;
+    padding: 0 12px;
+    spacing: 12px;
+    border-radius: 4px;
+    background-color: transparent;
+}
+
+.win11-ws-dark .win11-ws-menu-item:hover,
+.win11-ws-dark .win11-ws-menu-focus {
+    background-color: rgba(255, 255, 255, 0.07);
+}
+
+.win11-ws-light .win11-ws-menu-item:hover,
+.win11-ws-light .win11-ws-menu-focus {
+    background-color: rgba(0, 0, 0, 0.06);
+}
+
+.win11-ws-menu-item:insensitive {
+    opacity: 0.42;
+}
+
+.win11-ws-menu-check {
+    width: 14px;
+    font-size: 12px;
+}
+
+.win11-ws-menu-label {
+    font-size: 13px;
+}
+
+.win11-ws-dark .win11-ws-menu-label {
+    color: rgba(255, 255, 255, 0.94);
+}
+
+.win11-ws-light .win11-ws-menu-label {
+    color: rgba(20, 20, 24, 0.92);
+}
+
+.win11-ws-menu-shortcut {
+    font-size: 12px;
+    padding-left: 16px;
+}
+
+.win11-ws-dark .win11-ws-menu-shortcut {
+    color: rgba(255, 255, 255, 0.56);
+}
+
+.win11-ws-light .win11-ws-menu-shortcut {
+    color: rgba(20, 20, 24, 0.55);
+}
+
+.win11-ws-menu-sep {
+    margin: 3px 6px;
+}
+
+.win11-ws-dark .win11-ws-menu-sep {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.win11-ws-light .win11-ws-menu-sep {
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
+/* ---- Tooltip & OSD Pill -------------------------------------------------- */
+
+.win11-ws-tip,
+.win11-ws-osd {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.42);
+}
+
+.win11-ws-tip.win11-ws-dark,
+.win11-ws-osd.win11-ws-dark {
+    background-color: rgb(43, 46, 53);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.win11-ws-tip.win11-ws-light,
+.win11-ws-osd.win11-ws-light {
+    background-color: rgb(246, 247, 250);
+    border: 1px solid rgba(0, 0, 0, 0.10);
+    color: rgba(20, 20, 24, 0.92);
+}
+
+.win11-ws-osd-label {
+    font-size: 13px;
+    font-weight: 500;
+}

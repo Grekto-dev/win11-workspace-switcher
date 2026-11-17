@@ -1,0 +1,179 @@
+# Brazilian Portuguese strings for the settings window of Win11-Like Workspace Switcher.
+msgid ""
+msgstr ""
+"Project-Id-Version: win11-workspace-switcher@cinnamon\n"
+"PO-Revision-Date: 2026-11-17 10:40-0300\n"
+"Language-Team: pt_BR\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "General"
+msgstr "Geral"
+
+msgid "Hover flyout"
+msgstr "Painel ao passar o mouse"
+
+msgid "Task View"
+msgstr "Visão de Tarefas"
+
+msgid "Performance"
+msgstr "Desempenho"
+
+msgid "Language"
+msgstr "Idioma"
+
+msgid "Appearance"
+msgstr "Aparência"
+
+msgid "Button actions"
+msgstr "Ações do botão"
+
+msgid "Hover preview strip"
+msgstr "Faixa de visualização ao passar o mouse"
+
+msgid "Desktop cards"
+msgstr "Cartões de área de trabalho"
+
+msgid "Task View overlay"
+msgstr "Sobreposição da Visão de Tarefas"
+
+msgid "Motion"
+msgstr "Animações"
+
+msgid "Previews"
+msgstr "Miniaturas"
+
+msgid "Effects"
+msgstr "Efeitos"
+
+msgid "Language of the applet"
+msgstr "Idioma do applet"
+
+msgid "Auto follows the desktop locale. Restart Cinnamon or reload the applet for settings window translation."
+msgstr "Automático segue o idioma do sistema. Recarregue o applet para traduzir a janela de configurações."
+
+msgid "Auto (system)"
+msgstr "Automático (sistema)"
+
+msgid "Color scheme"
+msgstr "Esquema de cores"
+
+msgid "Auto (match Cinnamon theme)"
+msgstr "Automático (seguir tema do Cinnamon)"
+
+msgid "Dark (Windows 11 Dark)"
+msgstr "Escuro (Windows 11 Escuro)"
+
+msgid "Light (Windows 11 Light)"
+msgstr "Claro (Windows 11 Claro)"
+
+msgid "Active workspace indicator color"
+msgstr "Cor do indicador da área de trabalho ativa"
+
+msgid "Panel icon size"
+msgstr "Tamanho do ícone no painel"
+
+msgid "Auto (match Windows 11 proportions)"
+msgstr "Automático (proporções do Windows 11)"
+
+msgid "Fixed (px)"
+msgstr "Fixo (px)"
+
+msgid "Fixed icon width"
+msgstr "Largura fixa do ícone"
+
+msgid "Left click action"
+msgstr "Ação do clique esquerdo"
+
+msgid "Open Windows 11 Task View (Recommended)"
+msgstr "Abrir Visão de Tarefas do Windows 11 (Recomendado)"
+
+msgid "Open Cinnamon Expo"
+msgstr "Abrir Expo do Cinnamon"
+
+msgid "Toggle hover desktop strip"
+msgstr "Alternar faixa de áreas de trabalho"
+
+msgid "Switch to next workspace"
+msgstr "Alternar para a próxima área de trabalho"
+
+msgid "Middle click action"
+msgstr "Ação do clique do meio"
+
+msgid "Create new workspace"
+msgstr "Criar nova área de trabalho"
+
+msgid "Do nothing"
+msgstr "Não fazer nada"
+
+msgid "Switch workspaces with mouse wheel over the button"
+msgstr "Alternar áreas de trabalho com a roda do mouse sobre o botão"
+
+msgid "Show Windows 11 workspace pill OSD when switching (disable if Cinnamon OSD is enabled)"
+msgstr "Mostrar indicador OSD estilo Windows 11 ao alternar (desative se o OSD do Cinnamon estiver ativo)"
+
+msgid "Show Virtual Desktops flyout when hovering the button"
+msgstr "Mostrar faixa de Áreas de Trabalho ao passar o mouse no botão"
+
+msgid "Hover delay before opening flyout"
+msgstr "Atraso antes de abrir ao passar o mouse"
+
+msgid "Also show flyout when there is only 1 workspace"
+msgstr "Mostrar faixa mesmo quando houver apenas 1 área de trabalho"
+
+msgid "Show tooltip when hover flyout does not open"
+msgstr "Mostrar dica de texto quando a faixa não abrir ao passar o mouse"
+
+msgid "Show workspace names above desktop cards"
+msgstr "Mostrar nomes acima dos cartões de área de trabalho"
+
+msgid "Show 'New desktop' (+) card"
+msgstr "Mostrar cartão 'Nova área de trabalho' (+)"
+
+msgid "Ask confirmation before closing a workspace that has open windows"
+msgstr "Pedir confirmação antes de fechar uma área de trabalho com janelas abertas"
+
+msgid "Show windows from all monitors in Task View"
+msgstr "Mostrar janelas de todos os monitores na Visão de Tarefas"
+
+msgid "Use cached blurred wallpaper backdrop in Task View"
+msgstr "Usar papel de parede desfocado em cache na Visão de Tarefas"
+
+msgid "Activate newly created workspace immediately"
+msgstr "Ativar imediatamente a nova área de trabalho criada"
+
+msgid "Enable animations"
+msgstr "Habilitar animações"
+
+msgid "Animate button tile and icon press converge"
+msgstr "Animar botão e convergência do ícone ao pressionar"
+
+msgid "Slide-up reveal animation for hover flyout and menus"
+msgstr "Animação de deslize ao abrir a faixa e menus"
+
+msgid "Animate Task View dock and window cards"
+msgstr "Animar barra inferior e cartões da Visão de Tarefas"
+
+msgid "Mini-windows inside desktop cards"
+msgstr "Mini-janelas dentro dos cartões de área de trabalho"
+
+msgid "Live clones look identical to Windows 11 with minimal GPU cost; Schematic draws ultra-light boxes; Wallpaper only uses zero window actors."
+msgstr "Clones ao vivo ficam idênticos ao Windows 11 com custo mínimo de GPU; Esquemático desenha caixas ultraleves; Apenas papel de parede não cria atores de janela."
+
+msgid "Live window miniatures (Recommended)"
+msgstr "Miniaturas de janelas ao vivo (Recomendado)"
+
+msgid "Lightweight schematic rectangles"
+msgstr "Retângulos esquemáticos ultraleves"
+
+msgid "Wallpaper only"
+msgstr "Apenas papel de parede"
+
+msgid "Show live window previews in Task View window grid"
+msgstr "Mostrar miniaturas ao vivo na grade da Visão de Tarefas"
+
+msgid "Ultra-lightweight mode (disables animations, live clones and wallpaper blur)"
+msgstr "Modo ultraleve (desativa animações, clones ao vivo e desfoque do fundo)"

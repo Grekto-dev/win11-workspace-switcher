@@ -1,0 +1,248 @@
+{
+    "layout1": {
+        "type": "layout",
+        "pages": ["general", "flyout", "taskview", "performance"],
+        "general": {
+            "type": "page",
+            "title": "General",
+            "sections": ["general-lang", "general-theme", "general-actions"]
+        },
+        "flyout": {
+            "type": "page",
+            "title": "Hover flyout",
+            "sections": ["flyout-behavior", "flyout-cards"]
+        },
+        "taskview": {
+            "type": "page",
+            "title": "Task View",
+            "sections": ["taskview-layout", "taskview-anim"]
+        },
+        "performance": {
+            "type": "page",
+            "title": "Performance",
+            "sections": ["perf-previews", "perf-anim"]
+        },
+        "general-lang": {
+            "type": "section",
+            "title": "Language",
+            "keys": ["language"]
+        },
+        "general-theme": {
+            "type": "section",
+            "title": "Appearance",
+            "keys": ["theme-mode", "accent-color", "icon-size-mode", "icon-size"]
+        },
+        "general-actions": {
+            "type": "section",
+            "title": "Button actions",
+            "keys": ["click-action", "middle-click-action", "scroll-switch", "show-osd-pill"]
+        },
+        "flyout-behavior": {
+            "type": "section",
+            "title": "Hover preview strip",
+            "keys": ["hover-flyout", "hover-delay", "flyout-on-single", "show-tooltip"]
+        },
+        "flyout-cards": {
+            "type": "section",
+            "title": "Desktop cards",
+            "keys": ["show-workspace-names", "show-add-button", "confirm-close-nonempty"]
+        },
+        "taskview-layout": {
+            "type": "section",
+            "title": "Task View overlay",
+            "keys": ["show-all-monitors", "taskview-blur", "switch-on-add"]
+        },
+        "taskview-anim": {
+            "type": "section",
+            "title": "Motion",
+            "keys": ["enable-animations", "animate-button", "animate-flyout", "animate-taskview"]
+        },
+        "perf-previews": {
+            "type": "section",
+            "title": "Previews",
+            "keys": ["desktop-preview-mode", "taskview-live-clones"]
+        },
+        "perf-anim": {
+            "type": "section",
+            "title": "Effects",
+            "keys": ["lite-mode"]
+        }
+    },
+    "language": {
+        "type": "combobox",
+        "default": "auto",
+        "description": "Language of the applet",
+        "tooltip": "Auto follows the desktop locale. Restart Cinnamon or reload the applet for settings window translation.",
+        "options": {
+            "Auto (system)": "auto",
+            "English": "en",
+            "Português (Brasil)": "pt-BR"
+        }
+    },
+    "theme-mode": {
+        "type": "combobox",
+        "default": "auto",
+        "description": "Color scheme",
+        "options": {
+            "Auto (match Cinnamon theme)": "auto",
+            "Dark (Windows 11 Dark)": "dark",
+            "Light (Windows 11 Light)": "light"
+        }
+    },
+    "accent-color": {
+        "type": "colorchooser",
+        "default": "#4cc2ff",
+        "description": "Active workspace indicator color"
+    },
+    "icon-size-mode": {
+        "type": "combobox",
+        "default": "auto",
+        "description": "Panel icon size",
+        "options": {
+            "Auto (match Windows 11 proportions)": "auto",
+            "Fixed (px)": "fixed"
+        }
+    },
+    "icon-size": {
+        "type": "spinbutton",
+        "default": 24,
+        "min": 14,
+        "max": 48,
+        "step": 1,
+        "units": "px",
+        "description": "Fixed icon width",
+        "dependency": "icon-size-mode=fixed"
+    },
+    "click-action": {
+        "type": "combobox",
+        "default": "win11-taskview",
+        "description": "Left click action",
+        "options": {
+            "Open Windows 11 Task View (Recommended)": "win11-taskview",
+            "Open Cinnamon Expo": "cinnamon-expo",
+            "Toggle hover desktop strip": "toggle-flyout",
+            "Switch to next workspace": "next-workspace"
+        }
+    },
+    "middle-click-action": {
+        "type": "combobox",
+        "default": "new-workspace",
+        "description": "Middle click action",
+        "options": {
+            "Create new workspace": "new-workspace",
+            "Switch to next workspace": "next-workspace",
+            "Open Cinnamon Expo": "cinnamon-expo",
+            "Do nothing": "none"
+        }
+    },
+    "scroll-switch": {
+        "type": "switch",
+        "default": true,
+        "description": "Switch workspaces with mouse wheel over the button"
+    },
+    "show-osd-pill": {
+        "type": "switch",
+        "default": false,
+        "description": "Show Windows 11 workspace pill OSD when switching (disable if Cinnamon OSD is enabled)"
+    },
+    "hover-flyout": {
+        "type": "switch",
+        "default": true,
+        "description": "Show Virtual Desktops flyout when hovering the button"
+    },
+    "hover-delay": {
+        "type": "spinbutton",
+        "default": 400,
+        "min": 100,
+        "max": 1500,
+        "step": 50,
+        "units": "ms",
+        "description": "Hover delay before opening flyout",
+        "dependency": "hover-flyout"
+    },
+    "flyout-on-single": {
+        "type": "switch",
+        "default": true,
+        "description": "Also show flyout when there is only 1 workspace",
+        "dependency": "hover-flyout"
+    },
+    "show-tooltip": {
+        "type": "switch",
+        "default": true,
+        "description": "Show tooltip when hover flyout does not open"
+    },
+    "show-workspace-names": {
+        "type": "switch",
+        "default": true,
+        "description": "Show workspace names above desktop cards"
+    },
+    "show-add-button": {
+        "type": "switch",
+        "default": true,
+        "description": "Show 'New desktop' (+) card"
+    },
+    "confirm-close-nonempty": {
+        "type": "switch",
+        "default": false,
+        "description": "Ask confirmation before closing a workspace that has open windows"
+    },
+    "show-all-monitors": {
+        "type": "switch",
+        "default": false,
+        "description": "Show windows from all monitors in Task View"
+    },
+    "taskview-blur": {
+        "type": "switch",
+        "default": true,
+        "description": "Use cached blurred wallpaper backdrop in Task View"
+    },
+    "switch-on-add": {
+        "type": "switch",
+        "default": true,
+        "description": "Activate newly created workspace immediately"
+    },
+    "enable-animations": {
+        "type": "switch",
+        "default": true,
+        "description": "Enable animations"
+    },
+    "animate-button": {
+        "type": "switch",
+        "default": true,
+        "description": "Animate button tile and icon press converge",
+        "dependency": "enable-animations"
+    },
+    "animate-flyout": {
+        "type": "switch",
+        "default": true,
+        "description": "Slide-up reveal animation for hover flyout and menus",
+        "dependency": "enable-animations"
+    },
+    "animate-taskview": {
+        "type": "switch",
+        "default": true,
+        "description": "Animate Task View dock and window cards",
+        "dependency": "enable-animations"
+    },
+    "desktop-preview-mode": {
+        "type": "combobox",
+        "default": "live",
+        "description": "Mini-windows inside desktop cards",
+        "tooltip": "Live clones look identical to Windows 11 with minimal GPU cost; Schematic draws ultra-light boxes; Wallpaper only uses zero window actors.",
+        "options": {
+            "Live window miniatures (Recommended)": "live",
+            "Lightweight schematic rectangles": "schematic",
+            "Wallpaper only": "wallpaper"
+        }
+    },
+    "taskview-live-clones": {
+        "type": "switch",
+        "default": true,
+        "description": "Show live window previews in Task View window grid"
+    },
+    "lite-mode": {
+        "type": "switch",
+        "default": false,
+        "description": "Ultra-lightweight mode (disables animations, live clones and wallpaper blur)"
+    }
+}

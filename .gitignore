@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+locale/
+*.swp
+*~
+.DS_Store

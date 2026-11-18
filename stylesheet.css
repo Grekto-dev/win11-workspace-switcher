@@ -106,13 +106,13 @@
 .win11-ws-dark .win11-ws-card-dragging {
     background-color: rgba(54, 60, 72, 0.96);
     border-color: rgba(76, 194, 255, 0.85);
-    box-shadow: 0 8px 20px 0 rgba(0, 0, 0, 0.52);
+    box-shadow: none;
 }
 
 .win11-ws-light .win11-ws-card-dragging {
     background-color: rgba(255, 255, 255, 0.96);
     border-color: rgba(0, 120, 212, 0.85);
-    box-shadow: 0 8px 20px 0 rgba(0, 0, 0, 0.25);
+    box-shadow: none;
 }
 
 .win11-ws-dark .win11-ws-card-drop {
@@ -323,6 +323,16 @@
 
 .win11-ws-light .win11-ws-wincard {
     background-color: rgba(244, 246, 250, 0.94);
+}
+
+.win11-ws-dark .win11-ws-wincard-dragging {
+    box-shadow: none;
+    border-color: rgba(76, 194, 255, 0.90);
+}
+
+.win11-ws-light .win11-ws-wincard-dragging {
+    box-shadow: none;
+    border-color: rgba(0, 120, 212, 0.90);
 }
 
 .win11-ws-wincard-header {

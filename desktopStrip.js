@@ -404,6 +404,7 @@ class DesktopStrip {
         this._editing = false;
         this._menuOpen = false;
         this._previewIdx = -1;
+        this._addDropLit = false;
         this._dragState = null;
         this._dragCaptureId = 0;
         this._destroyed = false;
@@ -502,23 +503,37 @@ class DesktopStrip {
         }
     }
 
-    autoScrollAt(sx) {
+    autoScrollAt(sx, viewBounds = null) {
         const adj = this._getHAdjustment();
-        if (!adj || adj.upper <= adj.page_size) return;
-        const [vx] = this.scrollView.get_transformed_position();
-        const [vw] = this.scrollView.get_transformed_size();
+        if (!adj || adj.upper <= adj.page_size) return false;
+        let vx;
+        let vw;
+        if (viewBounds) {
+            vx = viewBounds.vx;
+            vw = viewBounds.vw;
+        } else {
+            [vx] = this.scrollView.get_transformed_position();
+            [vw] = this.scrollView.get_transformed_size();
+        }
         const edge = 48;
         let step = 0;
         if (sx < vx + edge) step = -Math.max(6, Math.round((vx + edge - sx) * 0.45));
         else if (sx > vx + vw - edge) step = Math.max(6, Math.round((sx - (vx + vw - edge)) * 0.45));
         if (step !== 0) {
-            adj.set_value(Math.max(adj.lower, Math.min(adj.upper - adj.page_size, adj.value + step)));
+            const next = Math.max(adj.lower, Math.min(adj.upper - adj.page_size, adj.value + step));
+            if (next !== adj.value) {
+                adj.set_value(next);
+                return true;
+            }
         }
+        return false;
     }
 
     _armDesktopDrag(card, startX, startY) {
         this._cancelDesktopDrag(false);
         const hAdj = this._getHAdjustment();
+        const [vx] = this.scrollView.get_transformed_position();
+        const [vw] = this.scrollView.get_transformed_size();
         this._dragState = {
             card,
             fromIdx: card.index,
@@ -526,6 +541,9 @@ class DesktopStrip {
             startX,
             startY,
             startScroll: hAdj ? hAdj.value : 0,
+            viewBounds: { vx, vw },
+            lastMx: startX,
+            redrawLaterId: 0,
             active: false,
         };
         this._dragCaptureId = global.stage.connect('captured-event', (stage, ev) => {
@@ -542,7 +560,16 @@ class DesktopStrip {
                         return Clutter.EVENT_PROPAGATE;
                     }
                 }
-                this._updateDesktopDrag(mx);
+                this._dragState.lastMx = mx;
+                if (!this._dragState.redrawLaterId) {
+                    this._dragState.redrawLaterId = Meta.later_add(Meta.LaterType.BEFORE_REDRAW, () => {
+                        if (this._dragState) {
+                            this._dragState.redrawLaterId = 0;
+                            this._updateDesktopDrag(this._dragState.lastMx);
+                        }
+                        return GLib.SOURCE_REMOVE;
+                    });
+                }
                 return Clutter.EVENT_PROPAGATE;
             }
             if (type === Clutter.EventType.KEY_PRESS && ev.get_key_symbol() === Clutter.KEY_Escape) {
@@ -555,6 +582,7 @@ class DesktopStrip {
             }
             if (type === Clutter.EventType.BUTTON_RELEASE && ev.get_button() === 1) {
                 if (this._dragState.active) {
+                    this._updateDesktopDrag(ev.get_coords()[0]);
                     this._finishDesktopDrag();
                     return Clutter.EVENT_STOP;
                 }
@@ -570,13 +598,12 @@ class DesktopStrip {
         st.active = true;
         st.card.closeBtn.visible = false;
         st.card.actor.add_style_class_name('win11-ws-card-dragging');
-        st.card.actor.opacity = 235;
     }
 
     _updateDesktopDrag(mx) {
         const st = this._dragState;
         if (!st || !st.active) return;
-        this.autoScrollAt(mx);
+        this.autoScrollAt(mx, st.viewBounds);
         const hAdj = this._getHAdjustment();
         const curScroll = hAdj ? hAdj.value : 0;
         const step = CARD_W + CARD_GAP;
@@ -631,7 +658,6 @@ class DesktopStrip {
             const a = this.cards[i].actor;
             a.remove_all_transitions();
             a.remove_style_class_name('win11-ws-card-dragging');
-            a.opacity = 255;
             if (animate && a.translation_x !== 0) {
                 a.ease({ translation_x: 0, duration: 130, mode: Clutter.AnimationMode.EASE_OUT_QUAD });
             } else {
@@ -647,9 +673,12 @@ class DesktopStrip {
         }
         const st = this._dragState;
         this._dragState = null;
+        if (st && st.redrawLaterId) {
+            Meta.later_remove(st.redrawLaterId);
+            st.redrawLaterId = 0;
+        }
         if (st && st.active && st.card && st.card.actor) {
             st.card.actor.remove_style_class_name('win11-ws-card-dragging');
-            st.card.actor.opacity = 255;
             if (animateReset) this._resetCardTransforms(this.applet.animFlyout);
         }
     }
@@ -662,6 +691,7 @@ class DesktopStrip {
         this.row.destroy_all_children();
         this.cards = [];
         this.addCard = null;
+        this._addDropLit = false;
 
         const wm = global.workspace_manager;
         const n = wm.n_workspaces;
@@ -756,6 +786,32 @@ class DesktopStrip {
         return card;
     }
 
+    // Builds a cached flat list of stage-coordinate drop rectangles for fast per-frame hit-testing.
+    getDropTargets() {
+        const targets = [];
+        for (let i = 0; i < this.cards.length; i++) {
+            const c = this.cards[i];
+            const [x, y] = c.actor.get_transformed_position();
+            const [w, h] = c.actor.get_transformed_size();
+            targets.push({ kind: 'desktop', card: c, x0: x, y0: y, x1: x + w, y1: y + h });
+        }
+        if (this.addCard) {
+            const [x, y] = this.addCard.get_transformed_position();
+            const [w, h] = this.addCard.get_transformed_size();
+            targets.push({ kind: 'add', actor: this.addCard, x0: x, y0: y, x1: x + w, y1: y + h });
+        }
+        return targets;
+    }
+
+    setAddDropHighlight(on) {
+        if (this._addDropLit === on) return;
+        this._addDropLit = on;
+        if (this.addCard) {
+            if (on) this.addCard.add_style_class_name('win11-ws-card-drop');
+            else this.addCard.remove_style_class_name('win11-ws-card-drop');
+        }
+    }
+
     // Returns { kind: 'desktop', card } | { kind: 'add', actor } | null for stage coords (sx, sy)
     hitTestDropTarget(sx, sy) {
         for (let i = 0; i < this.cards.length; i++) {
@@ -777,8 +833,10 @@ class DesktopStrip {
     }
 
     clearDropHighlights() {
-        this.cards.forEach(c => c.setDropHighlight(false));
-        if (this.addCard) this.addCard.remove_style_class_name('win11-ws-card-drop');
+        for (let i = 0; i < this.cards.length; i++) {
+            this.cards[i].setDropHighlight(false);
+        }
+        this.setAddDropHighlight(false);
     }
 
     totalContentWidth() {

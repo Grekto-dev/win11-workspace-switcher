@@ -4,7 +4,7 @@
 //     2px accent hover border, close (×), snap/move/sticky context menu, and drag-to-desktop
 //   - Bottom Virtual Desktops dock (width = monitor - 16, height = 176, 8px above taskbar)
 //     sliding up from under the panel (~250ms EASE_OUT_QUINT)
-const { Clutter, St, Pango } = imports.gi;
+const { Clutter, GLib, Meta, St, Pango } = imports.gi;
 const Main = imports.ui.main;
 const { tr } = require('./i18n');
 const {
@@ -419,27 +419,23 @@ class Win11TaskView {
                 const startY = item.origRect.y - mon.y;
                 const sx = Math.max(0.2, item.origRect.width / Math.max(1, item.w));
                 const sy = Math.max(0.2, item.origRect.height / Math.max(1, item.h));
-                card.set_position(startX, startY);
+                card.set_translation(startX - item.x, startY - item.y, 0);
                 card.set_scale(sx, sy);
-                card.opacity = 180;
                 card.ease({
-                    x: item.x,
-                    y: item.y,
-                    scale_x: 1,
-                    scale_y: 1,
-                    opacity: 255,
-                    duration: 240,
-                    mode: Clutter.AnimationMode.EASE_OUT_CUBIC,
-                });
-            } else if (animateFromDesktop) {
-                card.opacity = 0;
-                card.set_scale(0.92, 0.92);
-                card.set_pivot_point(0.5, 0.5);
-                card.ease({
-                    opacity: 255,
+                    translation_x: 0,
+                    translation_y: 0,
                     scale_x: 1,
                     scale_y: 1,
                     duration: 220,
+                    mode: Clutter.AnimationMode.EASE_OUT_CUBIC,
+                });
+            } else if (animateFromDesktop) {
+                card.set_scale(0.92, 0.92);
+                card.set_pivot_point(0.5, 0.5);
+                card.ease({
+                    scale_x: 1,
+                    scale_y: 1,
+                    duration: 180,
                     mode: Clutter.AnimationMode.EASE_OUT_CUBIC,
                 });
             }
@@ -619,19 +615,36 @@ class Win11TaskView {
             dragScale,
             active: false,
             target: null,
+            lastMx: startX,
+            lastMy: startY,
+            redrawLaterId: 0,
+            dockY0: 0,
+            dockY1: 0,
+            viewBounds: null,
+            dropTargets: [],
         };
         this._dragCaptureId = global.stage.connect('captured-event', (stage, ev) => {
             if (!this._dragState) return Clutter.EVENT_PROPAGATE;
             const type = ev.type();
             if (type === Clutter.EventType.MOTION) {
                 const [mx, my] = ev.get_coords();
-                const dx = mx - this._dragState.startX;
-                const dy = my - this._dragState.startY;
-                if (!this._dragState.active && Math.hypot(dx, dy) > 10) {
+                const st = this._dragState;
+                if (!st.active) {
+                    if (Math.hypot(mx - st.startX, my - st.startY) <= 10) {
+                        return Clutter.EVENT_PROPAGATE;
+                    }
                     this._startWindowDrag(mx, my);
                 }
-                if (this._dragState.active) {
-                    this._updateWindowDrag(mx, my);
+                st.lastMx = mx;
+                st.lastMy = my;
+                if (!st.redrawLaterId) {
+                    st.redrawLaterId = Meta.later_add(Meta.LaterType.BEFORE_REDRAW, () => {
+                        if (this._dragState && this._dragState.active) {
+                            this._dragState.redrawLaterId = 0;
+                            this._updateWindowDrag(this._dragState.lastMx, this._dragState.lastMy);
+                        }
+                        return GLib.SOURCE_REMOVE;
+                    });
                 }
                 return Clutter.EVENT_PROPAGATE;
             }
@@ -662,6 +675,23 @@ class Win11TaskView {
         if (st.closeBtn) st.closeBtn.visible = false;
         st.card.set_style(null);
         st.card.remove_all_transitions();
+        // Disable picking and box-shadow/opacity-FBO overhead while moving across frames
+        st.card.reactive = false;
+        st.card.add_style_class_name('win11-ws-wincard-dragging');
+
+        // Pre-cache dock & drop card bounds once so MOTION frames avoid Clutter FFI lookups
+        if (this._dock) {
+            const [, dy] = this._dock.get_transformed_position();
+            const [, dh] = this._dock.get_transformed_size();
+            st.dockY0 = dy;
+            st.dockY1 = dy + dh;
+        }
+        if (this._strip) {
+            const [vx] = this._strip.scrollView.get_transformed_position();
+            const [vw] = this._strip.scrollView.get_transformed_size();
+            st.viewBounds = { vx, vw };
+            st.dropTargets = this._strip.getDropTargets();
+        }
 
         // Reparent into _dragLayer (above dock) so dragged preview floats over desktop cards
         if (this._dragLayer && st.card.get_parent() === this._gridLayer) {
@@ -673,13 +703,11 @@ class Win11TaskView {
             st.card.ease({
                 scale_x: st.dragScale,
                 scale_y: st.dragScale,
-                opacity: 225,
-                duration: 90,
+                duration: 75,
                 mode: Clutter.AnimationMode.EASE_OUT_QUAD,
             });
         } else {
             st.card.set_scale(st.dragScale, st.dragScale);
-            st.card.opacity = 225;
         }
         this._positionDraggedCard(st, mx, my);
     }
@@ -700,28 +728,63 @@ class Win11TaskView {
         return false;
     }
 
+    _hitCachedDropTarget(st, mx, my) {
+        const list = st.dropTargets;
+        for (let i = 0; i < list.length; i++) {
+            const t = list[i];
+            if (mx >= t.x0 && mx <= t.x1 && my >= t.y0 && my <= t.y1) return t;
+        }
+        return null;
+    }
+
+    _setDragDropHighlight(st, nextTarget) {
+        const prev = st.target;
+        const same = (!prev && !nextTarget)
+            || (prev && nextTarget && prev.kind === nextTarget.kind
+                && (prev.kind === 'add' || prev.card === nextTarget.card));
+        if (same) return;
+
+        if (prev) {
+            if (prev.kind === 'desktop') prev.card.setDropHighlight(false);
+            else if (this._strip) this._strip.setAddDropHighlight(false);
+        }
+        st.target = nextTarget;
+        if (nextTarget) {
+            if (nextTarget.kind === 'desktop') nextTarget.card.setDropHighlight(true);
+            else if (this._strip) this._strip.setAddDropHighlight(true);
+        }
+    }
+
     _updateWindowDrag(mx, my) {
         const st = this._dragState;
         if (!st || !st.active) return;
         this._positionDraggedCard(st, mx, my);
         if (!this._strip) return;
 
-        this._strip.autoScrollAt(mx);
-        this._strip.clearDropHighlights();
-        const hit = this._strip.hitTestDropTarget(mx, my);
-        st.target = this._isValidDropTarget(st, hit) ? hit : null;
-        if (st.target && st.target.kind === 'desktop') st.target.card.setDropHighlight(true);
-        else if (st.target && st.target.kind === 'add') st.target.actor.add_style_class_name('win11-ws-card-drop');
+        // Skip hit-testing completely while dragging in the upper 80% of the monitor
+        if (my < st.dockY0 || my > st.dockY1) {
+            if (st.target) this._setDragDropHighlight(st, null);
+            return;
+        }
+
+        if (this._strip.autoScrollAt(mx, st.viewBounds)) {
+            st.dropTargets = this._strip.getDropTargets();
+        }
+        const hit = this._hitCachedDropTarget(st, mx, my);
+        const valid = this._isValidDropTarget(st, hit) ? hit : null;
+        this._setDragDropHighlight(st, valid);
     }
 
     _springBackDraggedCard(st) {
         if (!st || !st.active || !st.card) return;
         const card = st.card;
         const grid = this._gridLayer;
+        card.remove_style_class_name('win11-ws-wincard-dragging');
         const reparentBack = () => {
             if (!grid || !this.isOpen || card.get_parent() !== this._dragLayer) return;
             this._dragLayer.remove_child(card);
             grid.add_child(card);
+            card.reactive = true;
         };
         card.remove_all_transitions();
         if (this.applet.animTaskView) {
@@ -730,26 +793,25 @@ class Win11TaskView {
                 translation_y: 0,
                 scale_x: 1,
                 scale_y: 1,
-                opacity: 255,
-                duration: 160,
+                duration: 150,
                 mode: Clutter.AnimationMode.EASE_OUT_CUBIC,
                 onComplete: reparentBack,
             });
         } else {
             card.set_translation(0, 0, 0);
             card.set_scale(1, 1);
-            card.opacity = 255;
             reparentBack();
         }
     }
 
     _finishWindowDrag(ev) {
         const st = this._dragState;
+        const [mx, my] = ev.get_coords();
         this._cancelWindowDrag();
         if (!st || !st.active) return;
 
-        const [mx, my] = ev.get_coords();
-        const hit = this._strip ? this._strip.hitTestDropTarget(mx, my) : null;
+        const hit = this._hitCachedDropTarget(st, mx, my)
+            || (this._strip ? this._strip.hitTestDropTarget(mx, my) : null);
         if (this._strip) this._strip.clearDropHighlights();
 
         if (this._isValidDropTarget(st, hit)) {
@@ -780,8 +842,13 @@ class Win11TaskView {
             global.stage.disconnect(this._dragCaptureId);
             this._dragCaptureId = 0;
         }
-        if (this._strip) this._strip.clearDropHighlights();
+        const st = this._dragState;
         this._dragState = null;
+        if (st && st.redrawLaterId) {
+            Meta.later_remove(st.redrawLaterId);
+            st.redrawLaterId = 0;
+        }
+        if (this._strip) this._strip.clearDropHighlights();
     }
 
     _openWindowContextMenu(mw, x, y) {

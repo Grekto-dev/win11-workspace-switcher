@@ -8,7 +8,8 @@ LOCALE_DEST="${XDG_DATA_HOME:-$HOME/.local/share}/locale/pt_BR/LC_MESSAGES/$UUID
 ./scripts/build-locale.sh >/dev/null 2>&1 || true
 mkdir -p "$(dirname "$DEST")" "$(dirname "$LOCALE_DEST")"
 if [ -f "locale/pt_BR/LC_MESSAGES/$UUID.mo" ]; then
-    cp "locale/pt_BR/LC_MESSAGES/$UUID.mo" "$LOCALE_DEST"
+    cp "locale/pt_BR/LC_MESSAGES/$UUID.mo" "$LOCALE_DEST.tmp"
+    mv -f "$LOCALE_DEST.tmp" "$LOCALE_DEST"
 fi
 rm -rf "$DEST"
 if [ "$1" = "--link" ]; then

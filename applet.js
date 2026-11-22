@@ -2,7 +2,9 @@
 // Faithfully reproduces the Windows 11 Task View button, press-converge animation,
 // hover Virtual Desktops flyout, and full Task View overlay with minimal CPU/RAM overhead.
 const Applet = imports.ui.applet;
+const AppletManager = imports.ui.appletManager;
 const Main = imports.ui.main;
+const ModalDialog = imports.ui.modalDialog;
 const Settings = imports.ui.settings;
 const { Clutter, St } = imports.gi;
 
@@ -19,6 +21,7 @@ const { ContextMenu } = require('./contextMenu');
 const { WorkspaceFlyout } = require('./flyout');
 const { Win11TaskView } = require('./taskView');
 const { placeNear, preferredSize } = require('./popup');
+const { ShortcutManager } = require('./shortcuts');
 
 class Win11WorkspaceSwitcher extends Applet.Applet {
     constructor(metadata, orientation, panelHeight, instanceId) {
@@ -68,6 +71,18 @@ class Win11WorkspaceSwitcher extends Applet.Applet {
         this._connectWorkspaceSignals();
         this._refreshDarkTheme();
         this._applyMetrics();
+
+        this.shortcuts = new ShortcutManager(
+            this,
+            () => this._shortcutSpecs(),
+            (spec, conflict) => {
+                Main.notify(
+                    tr('shortcutConflictTitle'),
+                    tr('shortcutConflictBody', conflict.accel, conflict.source)
+                );
+            }
+        );
+        this.shortcuts.sync(null);
     }
 
     get buttonActor() {
@@ -153,6 +168,137 @@ class Win11WorkspaceSwitcher extends Applet.Applet {
         s.bindProperty(IN, 'desktop-preview-mode', 'desktopPreviewMode', onVisualChange);
         s.bindProperty(IN, 'taskview-live-clones', '_taskviewLiveClones', null);
         s.bindProperty(IN, 'lite-mode', 'liteMode', onVisualChange);
+
+        s.bindProperty(IN, 'enable-shortcuts', 'enableShortcuts', () => this.shortcuts && this.shortcuts.sync(null));
+        s.bindProperty(IN, 'shortcut-taskview', 'shortcutTaskView', () => this.shortcuts && this.shortcuts.sync('shortcut-taskview'));
+        s.bindProperty(IN, 'shortcut-workspace-left', 'shortcutWorkspaceLeft', () => this.shortcuts && this.shortcuts.sync('shortcut-workspace-left'));
+        s.bindProperty(IN, 'shortcut-workspace-right', 'shortcutWorkspaceRight', () => this.shortcuts && this.shortcuts.sync('shortcut-workspace-right'));
+        s.bindProperty(IN, 'shortcut-new-workspace', 'shortcutNewWorkspace', () => this.shortcuts && this.shortcuts.sync('shortcut-new-workspace'));
+        s.bindProperty(IN, 'shortcut-close-workspace', 'shortcutCloseWorkspace', () => this.shortcuts && this.shortcuts.sync('shortcut-close-workspace'));
+    }
+
+    _shortcutSpecs() {
+        return [
+            {
+                key: 'shortcut-taskview',
+                name: 'win11-ws-taskview',
+                value: this.shortcutTaskView,
+                callback: () => this._onHotkeyTaskView(),
+            },
+            {
+                key: 'shortcut-workspace-left',
+                name: 'win11-ws-left',
+                value: this.shortcutWorkspaceLeft,
+                callback: () => this._switchWorkspaceStep(-1),
+            },
+            {
+                key: 'shortcut-workspace-right',
+                name: 'win11-ws-right',
+                value: this.shortcutWorkspaceRight,
+                callback: () => this._switchWorkspaceStep(1),
+            },
+            {
+                key: 'shortcut-new-workspace',
+                name: 'win11-ws-new',
+                value: this.shortcutNewWorkspace,
+                callback: () => this._addAndActivateWorkspace(),
+            },
+            {
+                key: 'shortcut-close-workspace',
+                name: 'win11-ws-close',
+                value: this.shortcutCloseWorkspace,
+                callback: () => this._closeActiveWorkspace(),
+            },
+        ];
+    }
+
+    _shouldHandleHotkey() {
+        if (this.destroyed || global.settings.get_boolean('panel-edit-mode')) return false;
+        const curMon = Main.layoutManager.currentMonitor ? Main.layoutManager.currentMonitor.index : 0;
+        const myMon = this.panel ? this.panel.monitorIndex : curMon;
+        if (myMon !== curMon) {
+            const others = AppletManager.getRunningInstancesForUuid(this.metadata.uuid);
+            if (others.some(inst => inst !== this && inst.panel && inst.panel.monitorIndex === curMon)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    _onHotkeyTaskView() {
+        if (!this._shouldHandleHotkey()) return;
+        if ((Main.overview.visible || Main.expo.visible) && !this.taskView.isOpen) return;
+        if (this.contextMenu.isOpen) this.contextMenu.close(true);
+        this.taskView.toggle();
+    }
+
+    _switchWorkspaceStep(delta) {
+        if (!this._shouldHandleHotkey()) return;
+        const wm = global.workspace_manager;
+        const n = wm.n_workspaces;
+        const cur = wm.get_active_workspace_index();
+        const next = cur + delta;
+        if (next < 0 || next >= n) return;
+        const ws = wm.get_workspace_by_index(next);
+        if (!ws) return;
+        Main.wm.moveToWorkspace(ws);
+        this.showOsdIfEnabled(next);
+        if (this.taskView.isOpen) {
+            this.taskView._previewWsIndex = next;
+            if (this.taskView._strip) {
+                this.taskView._strip.setPreviewIndex(next);
+                this.taskView._strip.scrollCardIntoView(next);
+            }
+            this.taskView._rebuildWindowGrid(false);
+        }
+    }
+
+    _addAndActivateWorkspace() {
+        if (!this._shouldHandleHotkey()) return;
+        const idx = global.workspace_manager.n_workspaces;
+        if (!Main._addWorkspace()) return;
+        const ws = global.workspace_manager.get_workspace_by_index(idx);
+        if (ws) {
+            Main.wm.moveToWorkspace(ws);
+            this.showOsdIfEnabled(idx);
+        }
+        if (this.taskView.isOpen) {
+            this.taskView._previewWsIndex = idx;
+            if (this.taskView._strip) {
+                this.taskView._strip.setPreviewIndex(idx);
+                this.taskView._strip.refresh();
+                this.taskView._strip.scrollCardIntoView(idx);
+            }
+            this.taskView._rebuildWindowGrid(false);
+        } else if (this.flyout.isOpen) {
+            this.flyout.refresh();
+        }
+    }
+
+    _closeActiveWorkspace() {
+        if (!this._shouldHandleHotkey()) return;
+        const wm = global.workspace_manager;
+        if (wm.n_workspaces <= 1) return;
+        const activeIdx = wm.get_active_workspace_index();
+        const ws = wm.get_workspace_by_index(activeIdx);
+        if (!ws) return;
+
+        const wins = ws.list_windows().filter(w => Main.isInteresting(w) && !w.is_on_all_workspaces());
+        const doClose = () => {
+            if (!closeWorkspace(activeIdx)) return;
+            const newIdx = wm.get_active_workspace_index();
+            this.showOsdIfEnabled(newIdx);
+            if (this.flyout.isOpen) this.flyout.refresh();
+        };
+
+        if (this.confirmCloseNonEmpty && wins.length > 0) {
+            this.flyout.close(true);
+            this.taskView.close(true);
+            const dlg = new ModalDialog.ConfirmDialog(tr('confirmClose', workspaceDisplayName(activeIdx)), doClose);
+            dlg.open();
+        } else {
+            doClose();
+        }
     }
 
     _horizontal() {
@@ -445,6 +591,7 @@ class Win11WorkspaceSwitcher extends Applet.Applet {
             try { obj.disconnect(id); } catch (e) { /* already gone */ }
         });
         this._signals = [];
+        if (this.shortcuts) this.shortcuts.destroy();
         if (this.taskView) this.taskView.destroy();
         if (this.flyout) this.flyout.destroy();
         if (this.contextMenu) this.contextMenu.destroy();

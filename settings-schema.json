@@ -1,11 +1,16 @@
 {
     "layout1": {
         "type": "layout",
-        "pages": ["general", "flyout", "taskview", "performance"],
+        "pages": ["general", "shortcuts", "flyout", "taskview", "performance"],
         "general": {
             "type": "page",
             "title": "General",
             "sections": ["general-lang", "general-theme", "general-actions"]
+        },
+        "shortcuts": {
+            "type": "page",
+            "title": "Shortcuts",
+            "sections": ["shortcuts-general", "shortcuts-windows"]
         },
         "flyout": {
             "type": "page",
@@ -36,6 +41,22 @@
             "type": "section",
             "title": "Button actions",
             "keys": ["click-action", "middle-click-action", "scroll-switch", "show-osd-pill"]
+        },
+        "shortcuts-general": {
+            "type": "section",
+            "title": "Keyboard shortcuts",
+            "keys": ["enable-shortcuts"]
+        },
+        "shortcuts-windows": {
+            "type": "section",
+            "title": "Windows workspace shortcuts",
+            "keys": [
+                "shortcut-taskview",
+                "shortcut-workspace-left",
+                "shortcut-workspace-right",
+                "shortcut-new-workspace",
+                "shortcut-close-workspace"
+            ]
         },
         "flyout-behavior": {
             "type": "section",
@@ -244,5 +265,45 @@
         "type": "switch",
         "default": false,
         "description": "Ultra-lightweight mode (disables animations, live clones and wallpaper blur)"
+    },
+    "enable-shortcuts": {
+        "type": "switch",
+        "default": true,
+        "description": "Enable global workspace shortcuts"
+    },
+    "shortcut-taskview": {
+        "type": "keybinding",
+        "default": "<Super>Tab",
+        "description": "Open Task View",
+        "tooltip": "Default matches Windows (Win + Tab). Clear with Backspace/Delete to disable. Conflicts with system shortcuts are blocked.",
+        "dependency": "enable-shortcuts"
+    },
+    "shortcut-workspace-left": {
+        "type": "keybinding",
+        "default": "<Primary><Super>Left",
+        "description": "Switch to left workspace",
+        "tooltip": "Default matches Windows (Ctrl + Win + Left). Clear with Backspace/Delete to disable. Conflicts with system shortcuts are blocked.",
+        "dependency": "enable-shortcuts"
+    },
+    "shortcut-workspace-right": {
+        "type": "keybinding",
+        "default": "<Primary><Super>Right",
+        "description": "Switch to right workspace",
+        "tooltip": "Default matches Windows (Ctrl + Win + Right). Clear with Backspace/Delete to disable. Conflicts with system shortcuts are blocked.",
+        "dependency": "enable-shortcuts"
+    },
+    "shortcut-new-workspace": {
+        "type": "keybinding",
+        "default": "<Primary><Super>d",
+        "description": "Create new workspace",
+        "tooltip": "Default matches Windows (Ctrl + Win + D). Clear with Backspace/Delete to disable. Conflicts with system shortcuts are blocked.",
+        "dependency": "enable-shortcuts"
+    },
+    "shortcut-close-workspace": {
+        "type": "keybinding",
+        "default": "<Primary><Super>F4",
+        "description": "Close current workspace",
+        "tooltip": "Default matches Windows (Ctrl + Win + F4). Clear with Backspace/Delete to disable. Conflicts with system shortcuts are blocked.",
+        "dependency": "enable-shortcuts"
     }
 }

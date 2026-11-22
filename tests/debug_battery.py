@@ -290,8 +290,8 @@ try:
     ws_after_drop = evj(
         "global.get_window_actors().find(x => x.meta_window && x.meta_window.get_title() === 'Win11DndTestWin').meta_window.get_workspace().index()"
     )
-    gone_from_ws0 = not evj(
-        f"{A}.taskView._winCards.some(c => c.mw.get_title() === 'Win11DndTestWin')"
+    gone_from_ws0 = evj(
+        "!global.workspace_manager.get_workspace_by_index(0).list_windows().some(w => w.get_title() === 'Win11DndTestWin')"
     )
     check("window_dnd_drop_on_desktop", ws_after_drop == 1 and gone_from_ws0, f"ws={ws_after_drop}, gone={gone_from_ws0}")
 

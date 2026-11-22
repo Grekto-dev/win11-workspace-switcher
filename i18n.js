@@ -24,6 +24,8 @@ const STRINGS = {
         confirmOk: 'Fechar',
         openTaskView: 'Abrir Visão de Tarefas',
         addDesktop: 'Nova área de trabalho',
+        shortcutConflictTitle: 'Conflito de atalho detectado',
+        shortcutConflictBody: 'O atalho "%s" já está em uso pelo sistema (%s) e não foi aplicado.',
     },
     en: {
         taskView: 'Task View',
@@ -47,6 +49,8 @@ const STRINGS = {
         confirmOk: 'Close',
         openTaskView: 'Open Task View',
         addDesktop: 'New desktop',
+        shortcutConflictTitle: 'Shortcut conflict detected',
+        shortcutConflictBody: 'The shortcut "%s" is already in use by the system (%s) and was not applied.',
     },
 };
 
@@ -72,11 +76,13 @@ function setLanguage(mode) {
     }
 }
 
-function tr(key, arg) {
+function tr(key, ...args) {
     const table = STRINGS[_lang] || STRINGS.en;
-    const val = table[key] !== undefined ? table[key] : (STRINGS.en[key] || key);
-    if (arg !== undefined) {
-        return val.replace('%d', String(arg)).replace('%s', String(arg));
+    let val = table[key] !== undefined ? table[key] : (STRINGS.en[key] || key);
+    for (let i = 0; i < args.length; i++) {
+        if (args[i] !== undefined) {
+            val = val.replace(/%[ds]/, String(args[i]));
+        }
     }
     return val;
 }

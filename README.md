@@ -11,6 +11,7 @@ Windows 11 Task View & Virtual Desktops switcher applet for Cinnamon, modeled cl
   - Upper window grid with aspect-preserving live `Clutter.Clone` previews, `2 px` accent hover/focus border, `✕` close button, smooth open animation, and **GPU-translated drag-and-drop onto desktop cards or `+ New desktop`** (floating above the dock, cursor-centered shrink, edge auto-scroll, `Escape` cancel / spring-back).
   - Window context menu (`Snap left`, `Snap right`, `Move to >`, `Show on all desktops`, `Close`) and keyboard grid/strip navigation (`Tab`, arrows, `Enter`, `F2`, `Delete`, `Alt+Shift+Left/Right`, `Shift+F10`).
   - Bottom Virtual Desktops dock (`monitorWidth - 16 px`, `176 px` tall, `8 px` above taskbar) with hover-to-preview workspace windows, inline rename (`F2` or click name), drag-and-drop desktop reordering, and desktop context menu (`Rename`, `Move left`, `Move right`, `Close`).
+- **Configurable Windows 11 global shortcuts**: Defaults to `Win + Tab` (Task View), `Ctrl + Win + Left/Right` (switch workspace), `Ctrl + Win + D` (new workspace), and `Ctrl + Win + F4` (close current workspace). Every shortcut can be customized or disabled (`Enable global workspace shortcuts` toggle or clearing with `Backspace`/`Delete`), with automatic conflict detection against system WM/media/custom/applet shortcuts.
 - **Ultra-lightweight**: Zero `St.Widget` overhead on the panel button, zero idle timers or polling, lazy wallpaper texture cache, cached theme detection, in-place active-pill updates, GPU `translation` drags (zero relayouts), and an ultra-lightweight `lite-mode`.
 
 ## Install & Verify
@@ -19,5 +20,6 @@ Windows 11 Task View & Virtual Desktops switcher applet for Cinnamon, modeled cl
 ./tests/static_check.py
 ./install.sh --link
 ./tests/live_test.py
+./tests/test_shortcuts.py
 ./tests/debug_battery.py
 ```

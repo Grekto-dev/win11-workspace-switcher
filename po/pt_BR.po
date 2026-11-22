@@ -177,3 +177,42 @@ msgstr "Mostrar miniaturas ao vivo na grade da Visão de Tarefas"
 
 msgid "Ultra-lightweight mode (disables animations, live clones and wallpaper blur)"
 msgstr "Modo ultraleve (desativa animações, clones ao vivo e desfoque do fundo)"
+
+msgid "Shortcuts"
+msgstr "Atalhos"
+
+msgid "Keyboard shortcuts"
+msgstr "Atalhos de teclado"
+
+msgid "Windows workspace shortcuts"
+msgstr "Atalhos de área de trabalho do Windows"
+
+msgid "Enable global workspace shortcuts"
+msgstr "Habilitar atalhos globais de área de trabalho"
+
+msgid "Open Task View"
+msgstr "Abrir Visão de Tarefas"
+
+msgid "Default matches Windows (Win + Tab). Clear with Backspace/Delete to disable. Conflicts with system shortcuts are blocked."
+msgstr "Padrão igual ao Windows (Win + Tab). Limpe com Backspace/Delete para desativar. Conflitos com atalhos do sistema são bloqueados."
+
+msgid "Switch to left workspace"
+msgstr "Alternar para a área de trabalho à esquerda"
+
+msgid "Default matches Windows (Ctrl + Win + Left). Clear with Backspace/Delete to disable. Conflicts with system shortcuts are blocked."
+msgstr "Padrão igual ao Windows (Ctrl + Win + Esquerda). Limpe com Backspace/Delete para desativar. Conflitos com atalhos do sistema são bloqueados."
+
+msgid "Switch to right workspace"
+msgstr "Alternar para a área de trabalho à direita"
+
+msgid "Default matches Windows (Ctrl + Win + Right). Clear with Backspace/Delete to disable. Conflicts with system shortcuts are blocked."
+msgstr "Padrão igual ao Windows (Ctrl + Win + Direita). Limpe com Backspace/Delete para desativar. Conflitos com atalhos do sistema são bloqueados."
+
+msgid "Default matches Windows (Ctrl + Win + D). Clear with Backspace/Delete to disable. Conflicts with system shortcuts are blocked."
+msgstr "Padrão igual ao Windows (Ctrl + Win + D). Limpe com Backspace/Delete para desativar. Conflitos com atalhos do sistema são bloqueados."
+
+msgid "Close current workspace"
+msgstr "Fechar a área de trabalho atual"
+
+msgid "Default matches Windows (Ctrl + Win + F4). Clear with Backspace/Delete to disable. Conflicts with system shortcuts are blocked."
+msgstr "Padrão igual ao Windows (Ctrl + Win + F4). Limpe com Backspace/Delete para desativar. Conflitos com atalhos do sistema são bloqueados."
